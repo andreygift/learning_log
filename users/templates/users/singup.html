@@ -4,7 +4,7 @@
 
   <form method="post" action="{% url 'users:singup' %}">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ user_form.as_p }}
   
     <button name='submit'>Sing Up</button>
     <input type="hidden" name="next" value="{% url 'learning_logs:index' %}" />

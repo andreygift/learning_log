@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from django.contrib.auth import login, logout, authenticate
+from .forms import UserRegistrationForm
 
 # Create your views here.
 
@@ -12,18 +13,17 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('learning_logs:index'))
     
 def singup(request):
-    if request.method != 'POST':
-        # Create a empty form
-        form = UserCreationForm()
-    else:
-        form = UserCreationForm(data=request.POST)
+    if request.method == 'POST':
+        user_form = UserRegistrationForm(data=request.POST)
         
-        if form.is_valid():
-            new_user = form.save()
-            authenticated_user = authenticate(username=new_user.username,
-                password=request.POST['password1'])
-            login(request, authenticated_user)
-            return HttpResponseRedirect(reverse('learning_logs:index'))
+        if user_form.is_valid():
+            new_user = user_form.save(commit=False)
+            new_user.set_password(user_form.cleaned_data['password'])
+            new_user.save()
+            return render(request, 'learning_logs/topics.html', {'new_user': new_user})
+    else:
+        # Create a empty form
+        user_form = UserRegistrationForm()
     
-    context = {'form': form}
+    context = {'user_form': user_form}
     return render (request , 'users/singup.html', context)
